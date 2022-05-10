@@ -1,9 +1,36 @@
+import Link from 'next/link';
+
 function EventItem(props) {
-  const { item } = props;
+  const { title, image, date, location, id } = props;
+
+  const humanReadableDate = new Date(date).toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+  const formattedAddress = location.replace(', ', '\n');
+  const exploreLink = `/events/${id}`;
 
   return (
     <li>
-      <h2>{item.title}</h2>
+      {/* we don't need to add '/public' to get access to the image in the /public folder */}
+      <img src={'/' + image} alt={title} />
+
+      <div>
+        <div>
+          <h2>{title}</h2>
+          <div>
+            <time>{humanReadableDate}</time>
+          </div>
+          <div>
+            <address>{formattedAddress}</address>
+          </div>
+        </div>
+
+        <div>
+          <Link href={exploreLink}>Explore Event</Link>
+        </div>
+      </div>
     </li>
   );
 }
