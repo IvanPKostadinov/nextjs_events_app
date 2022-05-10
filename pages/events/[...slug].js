@@ -1,7 +1,10 @@
 import { useRouter } from 'next/router';
+import { Fragment } from 'react';
 
 import { getFilteredEvents } from '../../dummy-data';
 import EventList from '../../components/events/event-list';
+import ResultsTitle from '../../components/events/results-title';
+import Button from '../../components/ui/button';
 
 function FilteredEventsPage() {
   const router = useRouter();
@@ -26,7 +29,14 @@ function FilteredEventsPage() {
     numMonth < 1 ||
     numMonth > 12
   ) {
-    return <p className='center'>Invalid filter</p>;
+    return (
+      <Fragment>
+        <p>Invalid filter</p>;
+        <div className='center'>
+          <Button link='/events'>Show All Events</Button>
+        </div>
+      </Fragment>
+    );
   }
 
   const filteredEvents = getFilteredEvents({
@@ -35,13 +45,23 @@ function FilteredEventsPage() {
   });
 
   if (!filteredEvents || filteredEvents.length === 0) {
-    return <p className='center'>No Events Found.</p>
+    return (
+      <Fragment>
+        <p>No Events Found.</p>
+        <div className='center'>
+          <Button link='/events'>Show All Events</Button>
+        </div>
+      </Fragment>
+    );
   }
 
+  const date = new Date(numYear, numMonth - 1);
+
   return (
-    <div>
+    <Fragment>
+      <ResultsTitle date={date} />
       <EventList items={filteredEvents} />
-    </div>
+    </Fragment>
   );
 }
 
