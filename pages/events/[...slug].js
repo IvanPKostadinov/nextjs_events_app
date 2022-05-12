@@ -35,8 +35,20 @@ function FilteredEventsPage(props) {
     }
   }, [data]);
 
+  let pageHeadData = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta name='description' content='A list of filtered events.' />
+    </Head>
+  );
+
   if (!loadedEvents) {
-    return <p className='center'>Loading...</p>;
+    return (
+      <Fragment>
+        {pageHeadData}
+        <p className='center'>Loading...</p>
+      </Fragment>
+    );
   }
 
   const filteredYear = filterData[0];
@@ -56,9 +68,7 @@ function FilteredEventsPage(props) {
   ) {
     return (
       <Fragment>
-        <Head>
-        <title>Invalid Filter</title>
-      </Head>
+        {pageHeadData}
         <ErrorAlert>
           <p>Invalid filter</p>
         </ErrorAlert>
@@ -68,6 +78,16 @@ function FilteredEventsPage(props) {
       </Fragment>
     );
   }
+
+  pageHeadData = (
+    <Head>
+      <title>Filtered Events</title>
+      <meta
+        name='description'
+        content={`All events for ${numMonth}/${numYear}`}
+      />
+    </Head>
+  );
 
   const filteredEvents = loadedEvents.filter((event) => {
     const eventDate = new Date(event.date);
@@ -82,9 +102,7 @@ function FilteredEventsPage(props) {
   if (!filteredEvents || filteredEvents.length === 0) {
     return (
       <Fragment>
-        <Head>
-        <title>No Events Found</title>
-      </Head>
+        {pageHeadData}
         <ErrorAlert>
           <p>No Events Found.</p>
         </ErrorAlert>
@@ -100,13 +118,7 @@ function FilteredEventsPage(props) {
 
   return (
     <Fragment>
-      <Head>
-        <title>NextJS Events</title>
-        <meta
-          name='description'
-          content={`All events for ${numMonth}/${numYear}`}
-        />
-      </Head>
+      {pageHeadData}
       <ResultsTitle date={date} />
       <EventList items={filteredEvents} />
     </Fragment>
