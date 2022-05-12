@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { Fragment, useEffect, useState } from 'react';
 import useSWR from 'swr';
+import Head from 'next/head';
 
 import { getFilteredEvents } from '../../helpers/api-util';
 import EventList from '../../components/events/event-list';
@@ -55,6 +56,9 @@ function FilteredEventsPage(props) {
   ) {
     return (
       <Fragment>
+        <Head>
+        <title>Invalid Filter</title>
+      </Head>
         <ErrorAlert>
           <p>Invalid filter</p>
         </ErrorAlert>
@@ -78,6 +82,9 @@ function FilteredEventsPage(props) {
   if (!filteredEvents || filteredEvents.length === 0) {
     return (
       <Fragment>
+        <Head>
+        <title>No Events Found</title>
+      </Head>
         <ErrorAlert>
           <p>No Events Found.</p>
         </ErrorAlert>
@@ -93,6 +100,13 @@ function FilteredEventsPage(props) {
 
   return (
     <Fragment>
+      <Head>
+        <title>NextJS Events</title>
+        <meta
+          name='description'
+          content={`All events for ${numMonth}/${numYear}`}
+        />
+      </Head>
       <ResultsTitle date={date} />
       <EventList items={filteredEvents} />
     </Fragment>
