@@ -1,6 +1,12 @@
-function handler(req, res) {
+import { MongoClient } from 'mongodb';
+
+import { CONNECTION_STRING } from '../newsletter';
+
+async function handler(req, res) {
   // here we get the concrete value for the [eventId] entered
   const eventId = req.query.eventId;
+
+  const client = await MongoClient.connect(CONNECTION_STRING);
 
   if (req.method === 'POST') {
     // we must include these 3 properties in our Request data
@@ -21,12 +27,19 @@ function handler(req, res) {
     }
 
     const newComment = {
-      id: new Date().toISOString(),
       email,
       name,
       text,
+      eventId,
     };
 
+    const db = client.db();
+
+    const result = await db.collection('comments').insertOne(newComment);
+
+    newComment.id = result.insertedId.toString();
+
+    console.log(result);
     console.log({ newComment });
     res.status(201).json({ message: 'Added comment.', comment: newComment });
   }
@@ -39,6 +52,8 @@ function handler(req, res) {
 
     res.status(200).json({ comments: dummyList });
   }
+
+  client.close();
 }
 
 export default handler;
