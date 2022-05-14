@@ -5,6 +5,21 @@ const MONGODB_PASSWORD = '1QhVdLwuLsgpCGD1';
 const MONGODB_NAME = 'events';
 export const CONNECTION_STRING = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster0.pouqz.mongodb.net/${MONGODB_NAME}?retryWrites=true&w=majority`;
 
+async function connectDatabase() {
+  // Here we establish the connection:
+  const client = await MongoClient.connect(CONNECTION_STRING);
+
+  return client;
+}
+
+async function insertDocument(client, document) {
+  // here we connect to the DB:
+  const db = client.db(); // we may add client.db(MONGODB_NAME); but here we've already added it so don't need to
+
+  // here we get access to a concrete collection and insert one "document":
+  await db.collection('newsletter').insertOne(document);
+}
+
 // we switch to async-await
 async function handler(req, res) {
   if (req.method === 'POST') {
@@ -17,15 +32,23 @@ async function handler(req, res) {
       return;
     }
 
-    const client = await MongoClient.connect(CONNECTION_STRING);
-    // here we connect to the DB:
-    const db = client.db(); // we may add client.db(MONGODB_NAME); but here we've already added it so don't need to
+    let client;
 
-    // here we get access to a concrete collection and insert one "document":
-    await db.collection('newsletter').insertOne({ email: userEmail });
+    try {
+      client = await connectDatabase();
+    } catch (error) {
+      res.status(500).json({ message: 'Connecting to the Database failed!' });
+      return;
+    }
 
-    // here we disconnect from this client:
-    client.close();
+    try {
+      await insertDocument(client, { email: userEmail });
+      // here we disconnect from this client:
+      client.close();
+    } catch (error) {
+      res.status(500).json({ message: 'Inserting data failed!' });
+      return;
+    }
 
     // Alternative with .then(...)
     // MongoClient.connect(
