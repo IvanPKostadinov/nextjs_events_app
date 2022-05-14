@@ -1,24 +1,4 @@
-import { MongoClient } from 'mongodb';
-
-const MONGODB_USERNAME = 'ivankostadinov';
-const MONGODB_PASSWORD = '1QhVdLwuLsgpCGD1';
-const MONGODB_NAME = 'events';
-export const CONNECTION_STRING = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@cluster0.pouqz.mongodb.net/${MONGODB_NAME}?retryWrites=true&w=majority`;
-
-async function connectDatabase() {
-  // Here we establish the connection:
-  const client = await MongoClient.connect(CONNECTION_STRING);
-
-  return client;
-}
-
-async function insertDocument(client, document) {
-  // here we connect to the DB:
-  const db = client.db(); // we may add client.db(MONGODB_NAME); but here we've already added it so don't need to
-
-  // here we get access to a concrete collection and insert one "document":
-  await db.collection('newsletter').insertOne(document);
-}
+import { connectDatabase, insertDocument} from '../../helpers/db-util';
 
 // we switch to async-await
 async function handler(req, res) {
@@ -42,7 +22,7 @@ async function handler(req, res) {
     }
 
     try {
-      await insertDocument(client, { email: userEmail });
+      await insertDocument(client, 'newsletter', { email: userEmail });
       // here we disconnect from this client:
       client.close();
     } catch (error) {
