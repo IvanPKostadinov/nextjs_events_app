@@ -17,5 +17,20 @@ export async function insertDocument(client, collection, document) {
   const db = client.db(); // we may add client.db(MONGODB_NAME); but here we've already added it so don't need to
 
   // here we get access to a concrete collection and insert one "document":
-  await db.collection(collection).insertOne(document);
+  const result = await db.collection(collection).insertOne(document);
+
+  return result;
+}
+
+export async function getAllDocuments(client, collection, sort) {
+  const db = client.db();
+
+  // here we retrieve all the documents
+  const documents = await db
+    .collection(collection)
+    .find()
+    .sort(sort)
+    .toArray();
+
+  return documents;
 }
