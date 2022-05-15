@@ -1,8 +1,10 @@
-import { useRef } from 'react';
+import { useRef, useContext } from 'react';
 
 import classes from './newsletter-registration.module.css';
+import NotificationContext from '../../store/notification-context';
 
 function NewsletterRegistration() {
+  const notificationCtx = useContext(NotificationContext);
   const emailInputRef = useRef();
 
   function registrationHandler(event) {
@@ -14,6 +16,12 @@ function NewsletterRegistration() {
 
     const enteredEmail = emailInputRef.current.value;
 
+    notificationCtx.showNotification({
+      title: 'Signing up...',
+      message: 'Registering for newsletter...',
+      status: 'pending',
+    });
+
     fetch('/api/newsletter', {
       method: 'POST',
       // here we add email: ..., because this is what the handler() expects in api/newsletter.js
@@ -22,8 +30,31 @@ function NewsletterRegistration() {
         'Content-Type': 'application/json',
       },
     })
-      .then((response) => response.json())
-      .then((data) => console.log({ data }));
+      .then((response) => {
+        if (response.ok) {
+          return response.json();
+        }
+
+        // This is how we throw an error in .then().catch() and still get the data:
+        return response.json().then((data) => {
+          // this will make it into the .catch() block:
+          throw new Error(data.error || "Couldn't register.");
+        });
+      })
+      .then((data) => {
+        notificationCtx.showNotification({
+          title: 'Success!',
+          message: "You've successfully registered for newsletter!",
+          status: 'success',
+        });
+      })
+      .catch((error) => {
+        notificationCtx.showNotification({
+          title: 'Error!',
+          message: error.message || 'Something went wrong',
+          status: 'error',
+        });
+      });
   }
 
   return (
